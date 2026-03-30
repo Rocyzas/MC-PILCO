@@ -81,7 +81,7 @@ def run_recipe_batch(seed: int):
         n_steps     : number of steps completed
     """
     recipe = make_default_recipe()
-    env = _PenSimEnv(recipe_combo=recipe)
+    env = _PenSimEnv(recipe_combo=recipe, fast=True)
     env.random_seed_ref = seed
     env.yield_pre = 0
 

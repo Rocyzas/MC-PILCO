@@ -56,13 +56,16 @@ BASE_SEED = args.base_seed
 # ---------------------------------------------------------------------------
 # Build default recipe (used for the entire batch — no agent control)
 # ---------------------------------------------------------------------------
+_NO_DISCHARGE = [{"time": 0, "value": 0}, {"time": 230, "value": 0}]
+
 def make_default_recipe():
     return RecipeCombo(recipe_dict={
         FS:        Recipe(FS_DEFAULT_PROFILE,        FS),
         FOIL:      Recipe(FOIL_DEFAULT_PROFILE,      FOIL),
         FG:        Recipe(FG_DEFAULT_PROFILE,        FG),
         PRES:      Recipe(PRESS_DEFAULT_PROFILE,     PRES),
-        DISCHARGE: Recipe(DISCHARGE_DEFAULT_PROFILE, DISCHARGE),
+        # DISCHARGE: Recipe(DISCHARGE_DEFAULT_PROFILE, DISCHARGE),
+        DISCHARGE: Recipe(_NO_DISCHARGE,             DISCHARGE),
         WATER:     Recipe(WATER_DEFAULT_PROFILE,     WATER),
         PAA:       Recipe(PAA_DEFAULT_PROFILE,       PAA),
     })
@@ -81,7 +84,8 @@ def run_recipe_batch(seed: int):
         n_steps     : number of steps completed
     """
     recipe = make_default_recipe()
-    env = _PenSimEnv(recipe_combo=recipe, fast=True)
+    env = _PenSimEnv(recipe_combo=recipe, fast=True) # for fastodeint solver - breaks on discharge
+    # env = _PenSimEnv(recipe_combo=recipe, fast=False) # for scipy solver, works with discharge but much slower
     env.random_seed_ref = seed
     env.yield_pre = 0
 
@@ -175,6 +179,7 @@ ax.set_ylabel("Penicillin concentration [g/L]")
 ax.set_title(f"Recipe-Driven Baseline — Penicillin Trajectories ({N_SEEDS} batches)")
 ax.legend(fontsize=7, ncol=max(1, N_SEEDS // 5), loc="upper left")
 ax.grid(True, alpha=0.3)
+ax.set_ylim(bottom=-0.1)
 fig.tight_layout()
 traj_path = os.path.join(results_dir, "pen_trajectories.png")
 fig.savefig(traj_path, dpi=120, bbox_inches="tight")

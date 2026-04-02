@@ -102,9 +102,8 @@ class GP_prior(torch.nn.Module):
         # K_X_inv, LU = torch.gesv(torch.eye(K_X.size()[0], dtype=self.dtype, device=self.device), K_X)
         # log_det = torch.sum(torch.log(torch.diag(LU)**2))/2
 
-        # inverse with cholesky (jitter for numerical stability)
-        jitter = 1e-6 * torch.eye(K_X.size(0), dtype=K_X.dtype, device=K_X.device)
-        U = torch.cholesky(K_X + jitter, upper=True)
+        # inverse with cholesky
+        U = torch.cholesky(K_X, upper=True)
         log_det = 2 * torch.sum(torch.log(torch.diag(U)))
 
         U_inv = torch.inverse(U)
